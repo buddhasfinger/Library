@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.library.mapper.BookMapper">
+  
+  <!-- 전체리스트 -->
+  <select id="bookListCount" resultType="int">
+  		<![CDATA[
+  		select count(*) from book
+  		]]>
+  </select>
+  <select id="selectbookListAll" resultType="com.library.dto.BookDto">
+		<![CDATA[
+			select * from
+			(select rownum rnum,a.* from
+			(select * from book order by bk_id desc) a)
+			where rnum>=#{startrow} and rnum<=#{endrow}
+		]]>
+  </select>
+	
+	<!-- 타이틀검색 리스트 -->
+	<select id="selectbookListTitle" resultType="com.library.dto.BookDto">
+		<![CDATA[
+		select * from (select rownum rnum,a.* from
+		(select * from book where bk_bookname like '%'||#{search}||'%'
+		order by bk_id desc) a)
+		where rnum>=#{startrow} and rnum<=#{endrow}
+		]]>
+  	</select>
+  	<select id="bookListCountTitle" resultType="int">
+		<![CDATA[
+		select count(*) from book where bk_bookname like '%'||#{search}||'%'
+		]]>
+	</select>
+	
+	<!-- 내용검색 리스트 -->
+	<select id="selectbookListContent" resultType="com.library.dto.BookDto">
+		<![CDATA[
+		select * from (select rownum rnum,a.* from
+		(select * from book where bk_content like '%'||#{search}||'%'
+		order by bk_id desc) a)
+		where rnum>=#{startrow} and rnum<=#{endrow}
+		]]>
+  	</select>
+	<select id="bookListCountContent" resultType="int">
+		<![CDATA[
+		select count(*) from book where bk_content like '%'||#{search}||'%'
+		]]>
+	</select>
+	
+	<!-- 전체검색 -->
+	<select id="selectbookSearchAll" resultType="com.library.dto.BookDto">
+		<![CDATA[
+		select * from (select rownum rnum,a.* from
+		(select * from book where bk_content like '%'||#{search}||'%' or bk_bookname like '%'||#{search}||'%' 
+		order by bk_id desc) a)
+		where rnum>=#{startrow} and rnum<=#{endrow}
+		]]>
+  	</select>
+	<select id="bookListCountSearchAll" resultType="int">
+		<![CDATA[
+		select count(*) from book where bk_content like '%'||#{search}||'%' or bk_bookname like '%'||#{search}||'%'
+		]]>
+	</select>
+	
+	<!-- 국내도서 -->
+	<select id="selectbookkoListAll" resultType="com.library.dto.BookDto">
+		<![CDATA[
+		select * from book where bk_nara='국내도서'
+		]]>
+    </select>
+    <select id="selectbookkoecList" resultType="com.library.dto.BookDto">
+		<![CDATA[
+		select * from book where bk_nara='국내도서' and bk_subcate=#{bk_subcate}
+		]]>
+    </select>
+    <select id="selectbookkonoList" resultType="com.library.dto.BookDto">
+		<![CDATA[
+		select * from book where bk_nara='국내도서' and bk_subcate=#{bk_subcate}
+		]]>
+    </select>
+    <select id="selectbookkoitList" resultType="com.library.dto.BookDto">
+		<![CDATA[
+		select * from book where bk_nara='국내도서' and bk_subcate=#{bk_subcate}
+		]]>
+    </select>
+    <select id="selectbookkotrList" resultType="com.library.dto.BookDto">
+		<![CDATA[
+		select * from book where bk_nara='국내도서' and bk_subcate=#{bk_subcate}
+		]]>
+    </select>
+    <select id="selectbookkoreList" resultType="com.library.dto.BookDto">
+		<![CDATA[
+		select * from book where bk_nara='국내도서' and bk_subcate=#{bk_subcate}
+		]]>
+    </select>
+    <select id="selectbookkomaList" resultType="com.library.dto.BookDto">
+		<![CDATA[
+		select * from book where bk_nara='국내도서' and bk_subcate=#{bk_subcate}
+		]]>
+    </select>
+   
+    <!-- 해외도서 -->
+	<select id="selectbookengListAll" resultType="com.library.dto.BookDto">
+		<![CDATA[
+		select * from book where bk_nara='해외도서'
+		]]>
+    </select>
+    <select id="selectbookengecList" resultType="com.library.dto.BookDto">
+		<![CDATA[
+		select * from book where bk_nara='해외도서' and bk_subcate=#{bk_subcate}
+		]]>
+    </select>
+    <select id="selectbookengnoList" resultType="com.library.dto.BookDto">
+		<![CDATA[
+		select * from book where bk_nara='해외도서' and bk_subcate=#{bk_subcate}
+		]]>
+    </select>
+    <select id="selectbookengitList" resultType="com.library.dto.BookDto">
+		<![CDATA[
+		select * from book where bk_nara='해외도서' and bk_subcate=#{bk_subcate}
+		]]>
+    </select>
+    <select id="selectbookengtrList" resultType="com.library.dto.BookDto">
+		<![CDATA[
+		select * from book where bk_nara='해외도서' and bk_subcate=#{bk_subcate}
+		]]>
+    </select>
+    <select id="selectbookengreList" resultType="com.library.dto.BookDto">
+		<![CDATA[
+		select * from book where bk_nara='해외도서' and bk_subcate=#{bk_subcate}
+		]]>
+    </select>
+    <select id="selectbookengmaList" resultType="com.library.dto.BookDto">
+		<![CDATA[
+		select * from book where bk_nara='해외도서' and bk_subcate=#{bk_subcate}
+		]]>
+    </select>
+
+
+
+  <!-- 도서등록 -->
+  <insert id="insertBook"><!-- arraylist를써도 dto를씀. -->
+  	<![CDATA[insert into book values(book_seq.nextval,#{bk_bookname},#{bk_writer},
+  	#{bk_pub},#{bk_isbn},#{bk_nara},#{bk_star},#{bk_amount},#{bk_content},#{bk_hit},#{bk_filename},#{bk_subcate})]]>
+  </insert>
+  
+  <!-- 도서수정 -->
+  <select id="selectModifyBook" resultType="com.library.dto.BookDto"><!-- arraylist를써도 dto를씀. -->
+  	<![CDATA[select * from book where bk_id = #{bk_id}]]>
+  </select>
+  <update id="updateBook"><!-- arraylist를써도 dto를씀. -->
+  	<![CDATA[update book set 
+			bk_bookname=#{bk_bookname},bk_writer=#{bk_writer},bk_pub=#{bk_pub},bk_isbn=#{bk_isbn}
+			,bk_nara=#{bk_nara},bk_star=#{bk_star},bk_amount=#{bk_amount},bk_content=#{bk_content},
+			bk_hit=#{bk_hit},bk_filename=#{bk_filename},bk_subcate=#{bk_subcate} where bk_id=#{bk_id}]]>
+  </update>
+  <!-- 대여시 수량 -1 -->
+   <update id="updateBookAmount"><!-- arraylist를써도 dto를씀. -->
+  	update book set bk_amount=bk_amount-1 where bk_id=#{bk_id}
+  </update>
+  <!-- 반납시 수량 +1 -->
+  <update id="updateBookPlusAmount"><!-- arraylist를써도 dto를씀. -->
+  	update book set bk_amount=bk_amount+1 where bk_id=#{bk_id}
+  </update>
+  
+
+  
+  <!-- 도서삭제 -->
+  <delete id="deleteBookDelete">
+ 	 <![CDATA[
+		delete book where bk_id=${bk_id}
+		]]>
+  </delete>
+  
+  <!-- 도서컨텐츠 뷰 -->
+  <!-- content_view -->
+  <select id="selectbookContent_view"
+	resultType="com.library.dto.BookDto">
+		<![CDATA[
+		select * from book where bk_id=#{bk_id}
+		]]>
+  </select>
+  
+  <!-- 팝업 -->
+  <select id="selectbookpop" resultType="com.library.dto.BookDto"><!-- arraylist를써도 dto를씀. -->
+  	<![CDATA[select * from book where bk_id = #{bk_id}]]>
+  </select>
+  
+  
+</mapper>	

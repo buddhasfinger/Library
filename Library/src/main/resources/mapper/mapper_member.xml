@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="com.library.mapper.MemberMapper">
+  
+  <!--   로그인 확인 -->
+  <select id="selectLoginCheck" resultType="com.library.dto.MemberDto">
+  	select * from lmember where lm_user=#{lm_user} and lm_pw1=#{lm_pw1}
+  </select>
+  
+<!--   회원가입 -->
+  <insert id="insertJoinCheck" >
+   <![CDATA[
+	insert into lmember values(
+	member_seq.nextval,#{lm_name},#{lm_tel1},#{lm_email1},#{lm_email2},#{lm_pw1},#{lm_user},
+	#{lm_address1},#{lm_address2},
+	#{lm_birth_year},#{lm_birth_month},#{lm_birth_day},#{lm_gender},#{lm_job},sysdate,#{lm_pw2},#{lm_favor})
+	   ]]>
+  </insert>
+  
+<!--   아이디 중복체크 -->
+    <select id="selectUserCheck" resultType="int">
+  	select count(*) from lmember where lm_user=#{lm_user}
+  </select>
+  
+  <!--전체리스트 --> 
+   <select id="selectBoardListAll" resultType="com.library.dto.MemberDto"> 
+		select * from 
+ 		<![CDATA[(select rownum rnum, a.* from 
+ 		(select lm_id,lm_name,lm_tel1,lm_email1,lm_email2,lm_pw1,lm_user,lm_address1,lm_address2,
+ 		lm_birth_year,lm_birth_month,lm_birth_day,lm_gender,lm_job,to_char(lm_date,'yyyy/mm/dd') as lm_date,lm_pw2 from lmember order by lm_id desc) a) 
+		where rnum >=#{startrow} and rnum <=#{endrow}]]> 
+   </select> 
+       <!-- 전체리스트 개수 --> 
+    <select id="listCount" resultType="int"> 
+ 		select count(*) from lmember 
+   </select> 
+   
+   <!-- 이름 검색 --> 
+<!--   <select id="selectBoardListTitle" resultType="com.library.dto.MemberDto"> -->
+<!-- 		<![CDATA[ -->
+<!-- 		select * from (select rownum rnum,a.* from -->
+<!-- 		(select * from lmember where lm_name like '%'||#{search}||'%' -->
+<!-- 		order by lm_id desc) a) -->
+<!-- 		where rnum>=#{startrow} and rnum<=#{endrow} -->
+<!-- 		]]> -->
+<!--   </select> -->
+
+   <!-- 이름 검색 개수 --> 
+<!--    <select id="listCountTitle" resultType="int" > -->
+<!-- 	<![CDATA[	select count(*) from lmember where lm_name like '%'||#{search}||'%']]> -->
+<!--   </select> -->
+  
+     <!--내정보 보기 --> 
+  <select id="selectMypage_view" resultType="com.library.dto.MemberDto">
+			select * from lmember where lm_id=#{lm_id}
+  </select>
+  
+  <!--   회원정보수정 -->
+  <update id="updateModifyCheck" >
+   <![CDATA[
+	update lmember set
+	lm_tel1=#{lm_tel1},lm_email1=#{lm_email1},lm_email2=#{lm_email2},lm_pw1=#{lm_pw1},
+	lm_address1=#{lm_address1},lm_address2=#{lm_address2},
+	lm_birth_year=#{lm_birth_year},lm_birth_month=#{lm_birth_month},lm_birth_day=#{lm_birth_day},lm_gender=#{lm_gender},lm_job=#{lm_job},lm_pw2=#{lm_pw2},lm_favor=#{lm_favor}
+	where lm_user=#{lm_user}
+	   ]]>
+  </update>
+  
+  </mapper>

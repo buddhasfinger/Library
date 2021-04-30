@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.library.mapper.ReservationMapper">
+	<!-- 대여 완료-->
+	<insert id="insertReservation">
+  	<![CDATA[insert into breservation values(breser_seq.nextval,#{bk_id},#{lm_id},sysdate,sysdate+14)]]>
+  	</insert>
+  	
+   	<!-- my대여리스트 완료 -->
+  	<select id="selectMybookListAll" resultType="com.library.dto.RbookDto">
+	  	<![CDATA[select c.br_id,c.bk_id,a.bk_bookname,c.lm_id,b.lm_name,c.br_sdate,c.br_edate from breservation c
+				 inner join book a on c.bk_id = a.bk_id
+				 inner join lmember b on c.lm_id = b.lm_id
+				 where c.lm_id = #{lm_id}
+		]]>
+	</select>
+	<!-- 대여연장 완료-->
+	<update id="updateBookReservation">
+		<![CDATA[update breservation set br_edate = br_edate+7 where br_id=#{br_id}
+		]]>
+	</update>
+	
+	
+	<!-- 관리자 전체 대여 리스트 -->	
+  	<select id="selecereserListAllsub" resultType="com.library.dto.RbookDto">
+	  	<![CDATA[			
+	  	select * from(select rownum rnum,d.* from (select a.br_id, a.bk_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate,'allre' as subcate
+		from breservation a, book b, lmember c
+		where a.bk_id = b.bk_id and a.lm_id = c.lm_id
+		order by a.br_id desc)d where subcate like '%'||#{subcate}||'%')where rnum>=#{startrow} and rnum<=#{endrow}]]>
+	</select>
+	<select id="reservationListCountSub" resultType="int">
+  		<![CDATA[
+			select count(*) from (select a.br_id, a.bk_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate,'allre' as subcate
+			from breservation a, book b, lmember c
+			where a.bk_id = b.bk_id and a.lm_id = c.lm_id
+			order by a.br_id desc)d where subcate like '%'||#{subcate}||'%'
+  		]]>
+  	</select>
+	<select id="selecereserListimmsub" resultType="com.library.dto.RbookDto">
+	  	<![CDATA[			
+	  	select * from(select rownum rnum,d.* from(select * from (select a.br_id, a.bk_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate,'immre' as subcate
+		from breservation a, book b, lmember c
+		where a.bk_id = b.bk_id and a.lm_id = c.lm_id
+		order by a.br_id desc) where subcate like '%'||#{subcate}||'%')d where  br_edate < to_char(sysdate,'yyyy-MM-dd'))where rnum>=#{startrow} and rnum<=#{endrow}]]>
+	</select>
+	<select id="reservationListCountimmSub" resultType="int">
+  		<![CDATA[
+			select count(*) from(select rownum rnum,d.* from (select a.br_id, a.bk_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate,'immre' as subcate
+			from breservation a, book b, lmember c
+			where a.bk_id = b.bk_id and a.lm_id = c.lm_id
+			order by a.br_id desc)d where subcate like '%'||#{subcate}||'%')where  br_edate < to_char(sysdate,'yyyy-MM-dd')
+  		]]>
+  	</select>
+  	<select id="selecereserListupsub" resultType="com.library.dto.RbookDto">
+	  	<![CDATA[			
+	  	select * from(select rownum rnum,d.* from(select * from(select a.br_id, a.bk_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate,'upre' as subcate
+		from breservation a, book b, lmember c
+		where a.bk_id = b.bk_id and a.lm_id = c.lm_id order by a.br_id desc) where subcate like '%'||#{subcate}||'%')d where br_edate = to_char(sysdate+1,'yyyy-MM-dd'))
+		where rnum>=#{startrow} and rnum<=#{endrow}]]>
+	</select>
+	<select id="reservationListCountupSub" resultType="int">
+  		<![CDATA[
+			select count(*) from(select rownum rnum,d.* from (select a.br_id, a.bk_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate,'upre' as subcate
+			from breservation a, book b, lmember c
+			where a.bk_id = b.bk_id and a.lm_id = c.lm_id
+			order by a.br_id desc)d where subcate like '%'||#{subcate}||'%')where  br_edate = to_char(sysdate+1,'yyyy-MM-dd')
+  		]]>
+  	</select>
+  	
+  	<select id="selectreserListTitle" resultType="com.library.dto.RbookDto">
+		<![CDATA[
+		select * from(select rownum rnum, d.* from(select a.br_id, a.bk_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate
+			from breservation a, book b, lmember c
+			where a.bk_id = b.bk_id and a.lm_id = c.lm_id
+			order by a.br_id desc)d where bk_bookname like '%'||#{search}||'%') where rnum>=#{startrow} and rnum<=#{endrow}
+		]]>
+  	</select>
+  	<select id="reservationListCountTitle" resultType="int">
+		<![CDATA[
+		select count(*) from (select a.br_id, a.bk_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate
+			from breservation a, book b, lmember c
+			where a.bk_id = b.bk_id and a.lm_id = c.lm_id
+			order by a.br_id desc) where bk_bookname like '%'||#{search}||'%'
+		]]>
+	</select>
+	<select id="selectreserListName" resultType="com.library.dto.RbookDto">
+		<![CDATA[
+		select * from(select rownum rnum, d.* from(select a.br_id, a.bk_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate
+			from breservation a, book b, lmember c
+			where a.bk_id = b.bk_id and a.lm_id = c.lm_id
+			order by a.br_id desc)d where lm_name like '%'||#{search}||'%') where rnum>=#{startrow} and rnum<=#{endrow}
+		]]>
+  	</select>
+  	<select id="reservationListCountName" resultType="int">
+		<![CDATA[
+		select count(*) from (select a.br_id, a.bk_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate
+			from breservation a, book b, lmember c
+			where a.bk_id = b.bk_id and a.lm_id = c.lm_id
+			order by a.br_id desc) where lm_name like '%'||#{search}||'%'
+		]]>
+	</select>
+	<select id="selectreserSearchAll" resultType="com.library.dto.RbookDto">
+		<![CDATA[
+		select * from(select rownum rnum, d.* from(select a.br_id, a.bk_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate
+			from breservation a, book b, lmember c
+			where a.bk_id = b.bk_id and a.lm_id = c.lm_id
+			order by a.br_id desc)d where lm_name like '%'||#{search}||'%' or bk_bookname like '%'||#{search}||'%') 
+			where rnum>=#{startrow} and rnum<=#{endrow}
+		]]>
+  	</select>
+	<select id="reservationListCountSearchAll" resultType="int">
+		<![CDATA[
+		select count(*) from (select a.br_id, a.bk_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate
+			from breservation a, book b, lmember c
+			where a.bk_id = b.bk_id and a.lm_id = c.lm_id
+			order by a.br_id desc) where lm_name like '%'||#{search}||'%' or bk_bookname like '%'||#{search}||'%'
+		]]>
+	</select>
+	
+	
+  	<!-- 관리자 미납 대여 리스트 -->	
+	<select id="selectUnpListAll" resultType="com.library.dto.RbookDto">
+	  	<![CDATA[			
+	  		select * from(select rownum rnum,d.* from (select a.br_id, a.bk_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate
+			from breservation a, book b, lmember c
+			where a.bk_id = b.bk_id and a.lm_id = c.lm_id
+			order by a.br_id desc)d where br_edate < sysdate-1)where rnum>=#{startrow} and rnum<=#{endrow}]]>
+	</select>
+	<select id="ureservationListCount" resultType="int">
+  		<![CDATA[
+  		select count(*) from breservation where br_edate < sysdate-1
+  		]]>
+  	</select>
+  	
+  	<select id="selectUnpListTitle" resultType="com.library.dto.RbookDto">
+		<![CDATA[
+	select * from(select rownum rnum,d.* from (select * from (select a.br_id, a.bk_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate
+			from breservation a, book b, lmember c
+			where a.bk_id = b.bk_id and a.lm_id = c.lm_id
+			order by a.br_id desc) where br_edate < sysdate-1)d where bk_bookname like '%'||#{search}||'%')
+			where rnum>=#{startrow} and rnum<=#{endrow}
+		]]>
+  	</select>
+  	<select id="ureservationListCountTitle" resultType="int">
+		<![CDATA[
+		select count(*) from (select * from(select a.br_id, a.bk_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate
+			from breservation a, book b, lmember c
+			where a.bk_id = b.bk_id and a.lm_id = c.lm_id
+			order by a.br_id desc)where br_edate < sysdate-1) where bk_bookname like '%'||#{search}||'%'
+		]]>
+	</select>
+	<select id="selectUnpListName" resultType="com.library.dto.RbookDto">
+		<![CDATA[
+		select * from(select rownum rnum,d.* from (select * from (select a.br_id, a.bk_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate
+			from breservation a, book b, lmember c
+			where a.bk_id = b.bk_id and a.lm_id = c.lm_id
+			order by a.br_id desc) where br_edate < sysdate-1)d where lm_name like '%'||#{search}||'%')
+			where rnum>=#{startrow} and rnum<=#{endrow}
+		]]>
+  	</select>
+  	<select id="ureservationListCountName" resultType="int">
+		<![CDATA[
+		select count(*) from (select * from(select a.br_id, a.bk_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate
+			from breservation a, book b, lmember c
+			where a.bk_id = b.bk_id and a.lm_id = c.lm_id
+			order by a.br_id desc)where br_edate < sysdate-1) where lm_name like '%'||#{search}||'%'
+		]]>
+	</select>
+	<select id="selectUnpSearchAll" resultType="com.library.dto.RbookDto">
+		<![CDATA[
+		select * from(select rownum rnum,d.* from (select * from (select a.br_id, a.bk_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate
+			from breservation a, book b, lmember c
+			where a.bk_id = b.bk_id and a.lm_id = c.lm_id
+			order by a.br_id desc) where br_edate < sysdate-1)d where lm_name like '%'||#{search}||'%' or bk_bookname like '%'||#{search}||'%')
+			where rnum>=#{startrow} and rnum<=#{endrow}
+		]]>
+  	</select>
+	<select id="ureservationListCountSearchAll" resultType="int">
+		<![CDATA[
+		select count(*) from (select * from(select a.br_id, a.bk_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate
+			from breservation a, book b, lmember c
+			where a.bk_id = b.bk_id and a.lm_id = c.lm_id
+			order by a.br_id desc)where br_edate < sysdate-1) where lm_name like '%'||#{search}||'%' or bk_bookname like '%'||#{search}||'%'
+		]]>
+	</select>
+  	
+  	
+  	
+  	
+  	<!-- 관리자 임박 대여 리스트 -->	
+	<select id="selectImmListAll" resultType="com.library.dto.RbookDto">
+	  	<![CDATA[			
+	  		select * from(select rownum rnum,d.* from (select a.br_id, a.bk_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate
+			from breservation a, book b, lmember c
+			where a.bk_id = b.bk_id and a.lm_id = c.lm_id
+			order by a.br_id desc)d where br_edate between sysdate-1  and sysdate+3)where rnum>=#{startrow} and rnum<=#{endrow}]]>
+	</select>
+	<select id="ireservationListCount" resultType="int">
+  		<![CDATA[
+  		select count(*) from breservation where br_edate >= sysdate and br_edate < sysdate+3
+  		]]>
+  	</select>
+  	<select id="selectImmListTitle" resultType="com.library.dto.RbookDto">
+		<![CDATA[
+	select * from(select rownum rnum,d.* from (select * from (select a.br_id, a.bk_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate
+			from breservation a, book b, lmember c
+			where a.bk_id = b.bk_id and a.lm_id = c.lm_id
+			order by a.br_id desc) where br_edate between sysdate-1  and sysdate+3)d where bk_bookname like '%'||#{search}||'%')
+			where rnum>=#{startrow} and rnum<=#{endrow}
+		]]>
+  	</select>
+  	<select id="ireservationListCountTitle" resultType="int">
+		<![CDATA[
+		select count(*) from (select * from(select a.br_id, a.bk_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate
+			from breservation a, book b, lmember c
+			where a.bk_id = b.bk_id and a.lm_id = c.lm_id
+			order by a.br_id desc)where br_edate between sysdate-1  and sysdate+3) where bk_bookname like '%'||#{search}||'%'
+		]]>
+	</select>
+	<select id="selectImmListName" resultType="com.library.dto.RbookDto">
+		<![CDATA[
+		select * from(select rownum rnum,d.* from (select * from (select a.br_id, a.bk_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate
+			from breservation a, book b, lmember c
+			where a.bk_id = b.bk_id and a.lm_id = c.lm_id
+			order by a.br_id desc) where br_edate between sysdate-1  and sysdate+3)d where lm_name like '%'||#{search}||'%')
+			where rnum>=#{startrow} and rnum<=#{endrow}
+		]]>
+  	</select>
+  	<select id="ireservationListCountName" resultType="int">
+		<![CDATA[
+		select count(*) from (select * from(select a.br_id, a.bk_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate
+			from breservation a, book b, lmember c
+			where a.bk_id = b.bk_id and a.lm_id = c.lm_id
+			order by a.br_id desc)where br_edate between sysdate-1  and sysdate+3) where lm_name like '%'||#{search}||'%'
+		]]>
+	</select>
+	<select id="selectImmSearchAll" resultType="com.library.dto.RbookDto">
+		<![CDATA[
+		select * from(select rownum rnum,d.* from (select * from (select a.br_id, a.bk_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate
+			from breservation a, book b, lmember c
+			where a.bk_id = b.bk_id and a.lm_id = c.lm_id
+			order by a.br_id desc) where br_edate between sysdate-1  and sysdate+3)d where lm_name like '%'||#{search}||'%' or bk_bookname like '%'||#{search}||'%')
+			where rnum>=#{startrow} and rnum<=#{endrow}
+		]]>
+  	</select>
+	<select id="ireservationListCountSearchAll" resultType="int">
+		<![CDATA[
+		select count(*) from (select * from(select a.br_id, a.bk_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate
+			from breservation a, book b, lmember c
+			where a.bk_id = b.bk_id and a.lm_id = c.lm_id
+			order by a.br_id desc)where br_edate between sysdate-1  and sysdate+3) where lm_name like '%'||#{search}||'%' or bk_bookname like '%'||#{search}||'%'
+		]]>
+	</select>
+	
+	
+	<!-- 도서삭제 -->
+  	<delete id="deletereservationDelete">
+		<![CDATA[delete breservation where br_id=#{br_id}]]>
+	</delete>
+	<!-- 미납메일전체전송 -->
+	<select id="selecttmail" resultType="com.library.dto.RbookDto">
+	  	<![CDATA[			
+	  		select listagg(email,',') within group (order by email) as temail from(select distinct email from(select a.br_id,b.bk_bookname,c.lm_name,a.br_sdate,a.br_edate,concat(c.lm_email1,c.lm_email2) as email from breservation a
+			inner join book b on a.bk_id = b.bk_id
+			inner join lmember c on a.lm_id = c.lm_id) where br_edate < to_char(sysdate,'yyyy-MM-dd'))]]>
+	</select>
+
+	
+	
+</mapper>	

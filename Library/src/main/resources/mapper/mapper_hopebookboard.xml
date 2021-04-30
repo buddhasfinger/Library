@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="com.library.mapper.HopeBookBoard_Mapper">
+
+
+<!-- reply -->
+	<insert id="insertHopeboardCommentWrite">
+		<selectKey resultType="int" keyProperty="hrw_Seq"
+			order="BEFORE">
+			select hrw_Seq.nextval from dual
+		</selectKey>
+		insert into hrwrite values(
+		#{hrw_Seq},#{hrw_User},#{hrw_Content},sysdate,#{hrw_Group})
+	</insert>
+
+	<select id="selectHopeboardCommentWrite"
+		resultType="com.library.dto.HrwriteDto">
+		select * from hrwrite where hrw_Seq=#{hrw_Seq}
+	</select>
+
+<!-- comment 전체 읽기 -->
+  <select id="selectHopeBoard_CommentList" resultType="com.library.dto.HrwriteDto">
+        SELECT * FROM hrwrite where hrw_Group=#{hrw_Group}
+  </select>
+  <!-- comment 개수 -->
+  <select id="selectHopeBoard_CommentCount" resultType="int">
+        SELECT count(*) FROM hrwrite where hrw_Group=#{hrw_Group}
+  </select>
+
+  
+   <!-- write --> 
+    <insert id="insertBoardWrite" >
+		<![CDATA[
+		insert into hbook values( 
+		hb_seq.nextval,#{hb_user},#{hb_title},#{hb_content},sysdate,0) 
+		]]> 
+  	</insert>
+  
+    <!-- update -->
+  <update id="updateBoardWrite">
+       <![CDATA[
+        update hbook set 
+        hb_title=#{hb_title},hb_content=#{hb_content},hb_date=sysdate
+		where hb_seq=#{hb_seq}
+	   ]]>
+  </update>
+  
+   <!--contentview --> 
+  <select id="selectBoardContent_view" resultType="com.library.dto.HopeBookBoardDto">
+			select * from hbook where hb_seq=#{hb_seq}
+  </select>
+   <select id="selectUpHit" >
+			update hbook set hb_hit=hb_hit+1 where hb_seq=#{hb_seq}
+  </select>
+  
+   <!--이전글 데이터 -->
+  <select id="selectBoard_pre" resultType="com.library.dto.HopeBookBoardDto">
+		<![CDATA[
+		select * from (select rownum rnum,a.*  from
+		(select * from hbook order by hb_seq desc) a)
+		where rnum=
+		(select rnum from (select rownum rnum,a.*  from
+		(select * from hbook order by hb_seq desc) a) 
+		where hb_seq=#{hb_seq})+1
+		]]>
+  </select>
+    <!--다음글 데이터 -->
+  <select id="selectBoard_next" resultType="com.library.dto.HopeBookBoardDto">
+		<![CDATA[
+		select * from (select rownum rnum,a.*  from
+		(select * from hbook order by hb_seq desc) a)
+		where rnum=
+		(select rnum from (select rownum rnum,a.*  from
+		(select * from hbook order by hb_seq desc) a) 
+		where hb_seq=#{hb_seq})-1
+
+		]]>
+  </select>
+   <!--이전글 데이터 타이틀검색  --> 
+   <select id="selectBoard_preTitle" resultType="com.library.dto.HopeBookBoardDto"> 
+	   <![CDATA[
+		select * from (select rownum rnum,a.*  from 
+		(select * from hbook where hb_title like '%'||#{search}||'%'
+		order by hb_seq desc) a) 
+		where rnum= 
+		(select rnum from (select rownum rnum,a.*  from 
+		(select * from hbook  where hb_title like '%'||#{search}||'%'
+		order by hb_seq desc) a)  
+		where hb_seq=#{hb_seq})+1 
+ 		]]> 
+ 	</select>	
+ 	<!--다음글 데이터 타이틀검색  -->
+   <select id="selectBoard_nextTitle" resultType="com.library.dto.HopeBookBoardDto"> 
+	   <![CDATA[
+ 			select * from (select rownum rnum,a.*  from 
+ 			(select * from hbook where hb_title like '%'||#{search}||'%' 
+	  		order by hb_seq desc) a) 
+ 			where rnum= 
+			(select rnum from (select rownum rnum,a.*  from 
+			(select * from hbook  where hb_title like '%'||#{search}||'%'
+			order by hb_seq desc) a)  
+			where hb_seq=#{hb_seq})-1 
+ 		]]> 
+    </select>
+   <!--이전글 데이터 content검색  -->
+  <select id="selectBoard_preContent" resultType="com.library.dto.HopeBookBoardDto">
+		<![CDATA[
+ 		select * from (select rownum rnum,a.* from 
+ 		(select * from hbook where hb_content like '%'||#{search}||'%' 
+ 		order by hb_seq desc) a) 
+ 		where rnum= 
+ 		(select rnum from (select rownum rnum,a.* from 
+ 		(select * from hbook where hb_content like '%'||#{search}||'%' 
+ 		order by hb_seq desc) a) 
+ 		where hb_seq=#{hb_seq})+1 
+ 		]]> 
+   </select>
+<!--다음글 데이터 content검색  -->
+  <select id="selectBoard_nextContent" resultType="com.library.dto.HopeBookBoardDto">
+		<![CDATA[
+ 		select * from (select rownum rnum,a.* from 
+ 		(select * from hbook where hb_content like '%'||#{search}||'%' 
+		order by hb_seq desc) a) 
+		where rnum= 
+ 		(select rnum from (select rownum rnum,a.* from 
+		(select * from hbook where hb_content like '%'||#{search}||'%' 
+ 		order by hb_seq desc) a) 
+ 		where hb_seq=#{hb_seq})-1 
+ 		]]> 
+   </select>
+   <!--이전글 데이터 All검색  --> 
+  <select id="selectBoard_preAll" resultType="com.library.dto.HopeBookBoardDto">
+		<![CDATA[
+		select * from (select rownum rnum,a.* from 
+ 		(select * from hbook where hb_content like '%'||#{search}||'%' or hb_title like '%'||#{search}||'%' 
+		order by hb_seq desc) a) 
+		where rnum= 
+		(select rnum from (select rownum rnum,a.* from 
+		(select * from hbook where hb_content like '%'||#{search}||'%' or hb_title like '%'||#{search}||'%' 
+ 		order by hb_seq desc) a) 
+ 		where hb_seq=#{hb_seq})+1 
+ 		]]> 
+   </select>
+<!--다음글 데이터 All검색  -->
+  <select id="selectBoard_nextAll" resultType="com.library.dto.HopeBookBoardDto">
+		<![CDATA[
+		select * from (select rownum rnum,a.* from 
+		(select * from hbook where hb_content like '%'||#{search}||'%' or hb_title like '%'||#{search}||'%' 
+		order by hb_seq desc) a) 
+ 		where rnum= 
+		(select rnum from (select rownum rnum,a.* from 
+ 		(select * from hbook where hb_content like '%'||#{search}||'%' or hb_title like '%'||#{search}||'%' 
+		order by hb_seq desc) a) 
+ 		where hb_seq=#{hb_seq})-1 
+ 		]]> 
+   </select>
+  
+   <!--전체리스트 --> 
+   <select id="selectBoardListAll" resultType="com.library.dto.HopeBookBoardDto"> 
+		select * from 
+ 		<![CDATA[(select rownum rnum, a.* from 
+ 		(select hb_seq,hb_user,hb_title,hb_content,hb_hit,to_char(hb_date,'yyyy/mm/dd') as hb_Date from hbook order by hb_seq desc) a) 
+		where rnum >=#{startrow} and rnum <=#{endrow}]]> 
+   </select> 
+       <!-- 전체리스트 개수 --> 
+    <select id="listCount" resultType="int"> 
+ 		select count(*) from hbook 
+   </select> 
+   
+   <!-- 타이틀 검색 --> 
+  <select id="selectBoardListTitle" resultType="com.library.dto.HopeBookBoardDto">
+		<![CDATA[
+		select * from (select rownum rnum,a.* from
+		(select * from hbook where hb_title like '%'||#{search}||'%'
+		order by hb_seq desc) a)
+		where rnum>=#{startrow} and rnum<=#{endrow}
+		]]>
+  </select>
+
+   <!-- title 검색 개수 --> 
+   <select id="listCountTitle" resultType="int" >
+	<![CDATA[	select count(*) from hbook where hb_title like '%'||#{search}||'%']]>
+  </select>
+
+   <!-- 내용 검색 --> 
+  <select id="selectBoardListContent" resultType="com.library.dto.HopeBookBoardDto">
+      <![CDATA[
+         select * from (select rownum rnum,a.* from 
+ 		(select * from hbook where hb_content like '%'||#{search}||'%' 
+ 		order by hb_seq desc) a) 
+ 		where rnum>=#{startrow} and rnum<=#{endrow} 
+ 	  ]]> 
+  </select>
+    
+   <!-- content 검색 개수 --> 
+  <select id="listCountContent" resultType="int">
+	<![CDATA[	select count(*) from hbook where hb_content like '%'||#{search}||'%'
+	]]>
+  </select>
+
+<!-- 전체 검색 -->
+  <select id="selectBoardListSearchAll" resultType="com.library.dto.HopeBookBoardDto">
+      <![CDATA[
+         select * from (select rownum rnum,a.* from 
+		(select * from hbook where hb_content like '%'||#{search}||'%' or hb_title like '%'||#{search}||'%'
+		order by hb_seq desc) a) 
+		where rnum>=#{startrow} and rnum<=#{endrow} 
+	  ]]> 
+  </select>
+   <!-- All 검색 개수 --> 
+  <select id="listCountSearchAll" resultType="int">
+	<![CDATA[select count(*) from hbook where hb_title like '%'||#{search}||'%' or hb_content like '%'||#{search}||'%']]>
+  </select>
+  
+  	  <!-- delete -->
+  <delete id="deleteBoardDelete" >
+        delete hbook where hb_seq=#{hb_seq}
+  </delete>
+  
+  </mapper>

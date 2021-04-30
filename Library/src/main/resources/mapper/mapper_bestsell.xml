@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.library.mapper.MainMapper">
+  
+  <!-- 베스트셀러 5개리스트 -->
+  <select id="selectBestSeller" resultType="com.library.dto.BookDto">
+  	<![CDATA[select * from(select rownum rnum,a.* from (select * from book order by bk_star asc) a) where rnum<=5]]>
+  </select> 
+  
+  <!-- 신작도서 -->
+  <select id="selectNewBookList" resultType="com.library.dto.BookDto">
+	<![CDATA[
+	select * from(select rownum rnum,a.* from (select * from book order by bk_id desc) a) where rnum<=5 and rnum>=1
+	]]>
+   </select> 
+   
+   <!--유저 관심도서 불러오기 -->
+   <select id="selectFavorBooks" resultType="String">
+		select lm_favor from lmember where lm_user=#{lm_user}
+  </select>  
+  
+    <!--매칭되는 카테고리 불러오기 -->
+   <select id="selectMatchingBook" resultType="com.library.dto.BookDto">
+		<![CDATA[
+		select * from 
+		(select rownum rnum, a.* from
+		(select * from book where bk_subcate = #{onebyone} order by bk_id desc) a)
+		where rnum<=5
+		]]>
+  </select>  
+  
+    <!--매칭되는 도서 불러오기 -->
+   <select id="selectShowBook" resultType="com.library.dto.BookDto">
+		select * from book where bk_id in (#{id0},#{id1},#{id2},#{id3},#{id4})
+  </select> 
+</mapper>	

@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.library.mapper.FreeboardMapper">
+	
+	<!-- 리스트 검색쿼리 -->
+	<!-- 리스트 갯수 검색 쿼리 -->
+	<select id="freeboradListCount" resultType="int">
+		<![CDATA[
+		select count(*) from free_board
+		]]>
+	</select>
+	<!-- 전체리스트 검색 개수 쿼리-->
+	<select id="freeboradListCountSearchAll" resultType="int">
+		<![CDATA[
+		select count(*) from
+		free_board where bcontent like '%'||#{search}||'%' or
+		btitle like
+		'%'||#{search}||'%'
+			]]>
+	</select>
+	<!-- title 검색 개수 -->
+	<select id="freeboradListCountTitle" resultType="int">
+		<![CDATA[
+		select count(*) from
+		free_board where btitle like '%'||#{search}||'%'
+			]]>
+	</select>
+	<select id="freeboradListCountContent" resultType="int">
+		<![CDATA[
+		select count(*) from
+		free_board where bcontent like '%'||#{search}||'%'
+			]]>
+	</select>
+	<!-- 리스트 갯수 검색쿼리 끝 -->
+	
+	
+	<!-- 리스트 출력 쿼리 -->
+	<!-- 전체리스트 출력 쿼리-->
+	<select id="selectFreeboardListAll" resultType="com.library.dto.FreeboardDto">
+	<![CDATA[
+	select * from
+	(select rownum rnum,a.* from
+	(select * from free_board order by bgroup desc,bstep asc) a)
+	where rnum>=#{startrow} and rnum<=#{endrow}
+	]]>
+	</select>
+	<!-- 전체 검색 출력 --> 
+	<select id="selectFreeboardListSearchAll"
+		resultType="com.library.dto.FreeboardDto">
+	<![CDATA[
+	select * from 
+	(select rownum rnum,a.* from 
+	(select * from free_board where bcontent like '%'||#{search}||'%' or btitle like '%'||#{search}||'%'
+	order by bgroup desc,bstep asc) a)
+	where rnum>=#{startrow} and rnum<=#{endrow}
+	]]>
+	</select>
+	<!-- 타이틀 검색 출력 --> 
+	<select id="selectFreeboardListTitle"
+		resultType="com.library.dto.FreeboardDto">
+	<![CDATA[
+	select * from 
+	(select rownum rnum,a.* from 
+	(select * from free_board where btitle like '%'||#{search}||'%'
+	order by bgroup desc bstep asc) a)
+	where rnum>=#{startrow} and rnum<=#{endrow}
+	]]>
+	</select>
+	<!-- 내용 검색 출력 --> 
+	<select id="selectFreeboardListContent"
+		resultType="com.library.dto.FreeboardDto">
+	<![CDATA[
+	select * from 
+	(select rownum rnum,a.* from 
+	(select * from free_board where bcontent like '%'||#{search}||'%'
+	order by bgroup desc,bstep asc) a)
+	where rnum>=#{startrow} and rnum<=#{endrow}
+	]]>
+	</select>
+	<!-- 리스트 출력 쿼리 끝 -->
+
+	<!-- 이전글 -->
+	<select id="selectFreeboardContent_pre"
+		resultType="com.library.dto.FreeboardDto">
+	<![CDATA[
+		select * from (select rownum rnum,a.*  from
+		(select * from free_board order by bgroup desc, bstep asc) a)
+		where rnum=
+		(select rnum from (select rownum rnum,a.*  from
+		(select * from free_board order by bgroup desc, bstep asc) a) 
+		where bid=#{bid})-1
+
+	]]>
+	</select>
+	<!-- 이전글 all 검색 -->
+	<select id="selectFreeboardContent_preAll"
+		resultType="com.library.dto.FreeboardDto">
+		<![CDATA[
+		select * from 
+		(select rownum rnum,a.* from 
+		(select * from free_board where bcontent like '%'||#{search}||'%' or btitle like '%'||#{search}||'%'
+		order by bgroup desc,bstep asc) a)
+		where rnum=
+		(select rnum from (select rownum rnum,a.* from 
+		(select * from free_board where bcontent like '%'||#{search}||'%' or btitle like '%'||#{search}||'%'
+		order by bgroup desc,bstep asc) a)
+		where bid=#{bid})-1
+		]]>
+	</select>
+	<!-- 이전글 title 검색 -->
+	<select id="selectFreeboardContent_preTitle"
+		resultType="com.library.dto.FreeboardDto">
+		<![CDATA[
+		select * from 
+		(select rownum rnum,a.* from 
+		(select * from free_board where btitle like '%'||#{search}||'%'
+		order by bgroup desc,bstep asc) a)
+		where rnum=
+		(select rnum from (select rownum rnum,a.* from 
+		(select * from free_board where btitle like '%'||#{search}||'%'
+		order by bgroup desc,bstep asc) a)
+		where bid=#{bid})-1
+		
+		]]>
+	</select>
+	<!-- 이전글 content 검색 -->
+	<select id="selectFreeboardContent_preContent"
+		resultType="com.library.dto.FreeboardDto">
+		<![CDATA[
+		select * from 
+		(select rownum rnum,a.* from 
+		(select * from free_board where bcontent like '%'||#{search}||'%'
+		order by bgroup desc,bstep asc) a)
+		where rnum=
+		(select rnum from (select rownum rnum,a.* from 
+		(select * from free_board where bcontent like '%'||#{search}||'%'
+		order by bgroup desc,bstep asc) a)
+		where bid=#{bid})-1
+		
+		]]>
+	</select>
+	<!-- 이전글 끝 -->
+
+
+
+	<!-- 다음글 -->
+	<select id="selectFreeboardContent_next"
+		resultType="com.library.dto.FreeboardDto">
+	<![CDATA[
+	select * from (select rownum rnum,a.*  from
+		(select * from free_board order by bgroup desc, bstep asc) a)
+		where rnum=
+		(select rnum from (select rownum rnum,a.*  from
+		(select * from free_board order by bgroup desc, bstep asc) a) 
+		where bid=#{bid})+1
+	]]>
+	</select>
+	<!-- 다음글 all 검색 -->
+	<select id="selectFreeboardContent_nextAll"
+		resultType="com.library.dto.FreeboardDto">
+		<![CDATA[
+		select * from 
+		(select rownum rnum,a.* from 
+		(select * from free_board where bcontent like '%'||#{search}||'%' or btitle like '%'||#{search}||'%'
+		order by bgroup desc,bstep asc) a)
+		where rnum=
+		(select rnum from (select rownum rnum,a.* from 
+		(select * from free_board where bcontent like '%'||#{search}||'%' or btitle like '%'||#{search}||'%'
+		order by bgroup desc,bstep asc) a)
+		where bid=#{bid})+1
+		]]>
+	</select>
+	<!-- 다음글 title 검색 -->
+	<select id="selectFreeboardContent_nextTitle"
+		resultType="com.library.dto.FreeboardDto">
+		<![CDATA[
+		select * from 
+		(select rownum rnum,a.* from 
+		(select * from free_board where btitle like '%'||#{search}||'%'
+		order by bgroup desc,bstep asc) a)
+		where rnum=
+		(select rnum from (select rownum rnum,a.* from 
+		(select * from free_board where btitle like '%'||#{search}||'%'
+		order by bgroup desc,bstep asc) a)
+		where bid=#{bid})+1
+		]]>
+	</select>
+	<!-- 다음글 content 검색 -->
+	<select id="selectFreeboardContent_nextContent"
+		resultType="com.library.dto.FreeboardDto">
+		<![CDATA[
+		select * from 
+		(select rownum rnum,a.* from 
+		(select * from free_board where bcontent like '%'||#{search}||'%'
+		order by bgroup desc,bstep asc) a)
+		where rnum=
+		(select rnum from (select rownum rnum,a.* from 
+		(select * from free_board where bcontent like '%'||#{search}||'%'
+		order by bgroup desc,bstep asc) a)
+		where bid=#{bid})+1
+		]]>
+	</select>
+	<!-- 다음글 끝-->
+
+
+	<!-- 게시판 메뉴 -->
+	<!-- content_view -->
+	<select id="selectFreeboardContent_view"
+		resultType="com.library.dto.FreeboardDto">
+			<![CDATA[
+		select * from free_board where bid=#{bid}
+			]]>
+	</select>
+	<!-- 조회수 증가 쿼리 -->
+	<update id="selectUpHit">
+		<![CDATA[
+		update free_board set bhit=bhit+1 where bid=#{bid}
+			]]>
+	</update>
+
+	<!-- write -->
+	<insert id="insertFreeboardWrite">
+  	<![CDATA[
+  	insert into free_board values(
+  	freeboard_seq.nextval,#{bname},#{btitle},#{bcontent},
+  	sysdate,0,freeboard_seq.currval,0,0,#{fileName})
+	]]>
+	</insert>
+	<!-- delete -->
+	<delete id="deleteFreeboardDelete">
+  	<![CDATA[
+	delete free_board where bid=#{bid}
+	]]>
+	</delete>
+	<!-- 게시판 수정 쿼리 -->
+	<update id="updateFreeboardModify">
+  	<![CDATA[
+  	update free_board set btitle=#{btitle},
+  	bcontent=#{bcontent},bdate=sysdate,fileName=#{fileName,jdbcType=VARCHAR}
+  	where bid=#{bid}
+	]]>
+	</update>
+	<!-- 게시판 메뉴 끝-->
+
+	<!-- reply -->
+	<insert id="insertFreeboardCommentWrite">
+		<selectKey resultType="int" keyProperty="commentNo"
+			order="BEFORE">
+			select com_seq.nextval from dual
+		</selectKey>
+		insert into freeboard_comment values(
+		com_seq.currval,#{bid},#{commentName},#{commentContent},sysdate)
+	</insert>
+	<!-- comment 하나 읽기 -->
+	<select id="selectFreeboardCommentWrite"
+		resultType="com.library.dto.CommentDto">
+		select * from freeboard_comment where commentNo=#{commentNo}
+	</select>
+
+	<!-- comment 전체 읽기 -->
+	<select id="selectFreeboard_commentList"
+		resultType="com.library.dto.CommentDto">
+		select * from freeboard_comment where bid=#{bid} order by commentDate desc
+	</select>
+	<!-- reply 끝 -->
+	  <!-- comment 개수 -->
+	  <select id="selectFreeboard_commentCount" resultType="int">
+	        SELECT count(*) FROM freeboard_comment where bid=#{bid}
+	  </select>
+	  <!-- comment 삭제 -->
+	  <delete id="deleteFreeboard_commentDelete">
+	        delete freeboard_comment where commentNo=#{commentNo}
+	  </delete>
+	  <update id="updateCommentUpdate" >
+	        update freeboard_comment set commentContent=#{commentContent},
+	        commentDate=sysdate where commentNo=#{commentNo}
+	  </update>
+
+
+
+</mapper>

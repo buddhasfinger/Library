@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.library.mapper.RoomBookingMapper">
+
+
+
+
+
+
+
+<!-- 주 5시간 체크 -->
+  <select id="weekcheck" resultType="int"><![CDATA[
+  	SELECT COUNT(*) from roombooking where lm_id = #{lm_id} and rb_date > to_char(sysdate-6,'YYYY-MM-DD')]]></select>
+  	
+<!-- 일 2시간 체크 -->
+  <select id="daycheck" resultType="int"><![CDATA[
+  	SELECT COUNT(*) from roombooking where lm_id = #{lm_id} and rb_date like to_char(sysdate,'YYYY-MM-DD')]]></select>
+  	
+<!-- 다른날  체크 -->
+  <select id="unad_daycheck" resultType="int"><![CDATA[
+  	SELECT COUNT(*) from roombooking where lm_id = #{lm_id} and rb_date = #{rb_date}]]></select>
+
+<!-- 앞시간 체크-->
+  <select id="nextroomcheck" resultType="int"><![CDATA[
+  	SELECT COUNT(*) from roombooking where sr_id = #{sr_id} and rb_date like to_char(sysdate,'YYYY-MM-DD') and rb_time like #{rb_time}+1]]></select>
+	
+<!-- 연장 등록 -->
+   <insert id="nextroomBooking" ><![CDATA[
+	insert into roombooking values( rb_seq.nextval,#{sr_id},#{rb_date},#{rb_time}+1,0,#{lm_id},'0')]]> </insert>
+
+<!-- 스터디룸 개인 예약내역 검색 -->
+	<select id="Rbookingtoday" resultType="com.library.dto.RoomBookingDto"><![CDATA[
+        select * from roombooking where lm_id = #{lm_id} and rb_date = to_char(sysdate,'YYYY-MM-DD')
+		]]></select>
+
+
+<!-- list 전체리스트 -->
+	<select id="RBookingAll" resultType="com.library.dto.RoomBookingDto"><![CDATA[
+        select * from  (select rownum rnum,a.*  from
+		(select * from roombooking 
+		order by rb_id desc, rb_id asc) a) 
+		where rnum>=#{startrow} and rnum<=#{endrow}]]>
+	</select>
+
+<!-- 관리자 스터디룸 예약 날짜별 검색 -->
+	<select id="RbookingDate" resultType="com.library.dto.RoomBookingDto"><![CDATA[
+        select * from (select rownum rnum,a.* from
+		(select * from roombooking where rb_date like '%'||#{search}||'%'
+		order by rb_id desc) a)
+		where rnum>=#{startrow} and rnum<=#{endrow}]]></select>
+
+<!-- 스터디룸 개인 예약내역 검색 -->
+	<select id="RbookingUser" resultType="com.library.dto.RoomBookingDto">
+	
+	<![CDATA[
+        select * from (select rownum rnum,a.* from
+		(select * from roombooking where lm_id = #{lm_id} and rb_date >= to_char(sysdate,'YYYY-MM-DD')
+		order by rb_id desc) a)
+		where rnum>=#{startrow} and rnum<=#{endrow}
+		
+		]]></select>
+		
+<!-- 스터디룸 예약취소 -->
+	<delete id="RoomBooking_Delete">
+		delete roombooking where rb_id=#{rb_id}
+	</delete>
+
+<!-- 스터디룸 예약 리스트 개수 -->
+	<select id="roomCount" resultType="int">select count(*) from roombooking</select>
+	<!-- 날짜 / 유저 검색 -->
+	<select id="roomCountDate" resultType="int"><![CDATA[select count(*) from roombooking where rb_date like '%'||#{search}||'%']]></select>
+	<select id="roomCountUser" resultType="int">select count(*) from roombooking where lm_id like '%'||#{search}||'%'</select>
+	
+
+</mapper>

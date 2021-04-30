@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.library.mapper.EventMapper">
+	<!-- 리스트 -->
+	<select id="selectEventListAll" resultType="com.library.dto.EventDto">
+	<![CDATA[
+	select * from
+	(select rownum rnum,a.* from
+	(select * from event order by le_enddate desc) a)
+	where rnum>=#{startrow} and rnum<=#{endrow}
+	]]>
+	</select>
+	<select id="eventListCount" resultType="int">
+		<![CDATA[
+		select count(*) from event
+		]]>
+	</select>
+	
+	<!-- 등록 -->
+	<insert id="insertEvent"><!-- arraylist를써도 dto를씀. -->
+  	<![CDATA[insert into event values(event_seq.nextval,#{le_category},#{le_title},
+  	#{le_content},#{le_filename},sysdate,#{le_enddate})]]>
+  	</insert>
+  	
+  	<!-- 읽기 -->
+  	<select id="selectRead" resultType="com.library.dto.EventDto">
+	  	<![CDATA[select * from event where le_id = #{le_id}]]>
+	</select>
+	
+	<!-- 수정 -->
+	<update id="updateEvent">
+  	<![CDATA[
+  	update event set le_title=#{le_title},
+  	le_content=#{le_content},le_enddate=#{le_enddate},le_filename=#{le_filename,jdbcType=VARCHAR}
+  	where le_id=#{le_id}
+	]]>
+	</update>
+	
+	<!-- 삭제 -->
+	<delete id="deleteEvent">
+  	<![CDATA[
+	delete event where le_id=#{le_id}
+	]]>
+	</delete>
+	
+	<!-- 이전글 -->
+   <select id="selecteventBoard_pre" resultType="com.library.dto.EventDto"><!-- arraylist를써도 dto를씀. -->
+  	<![CDATA[ 	
+  	select * from (select rownum rnum,a.* from 
+  	(select * from event order by le_enddate desc) a) 
+  	where rnum=(select rnum from (select rownum rnum,a.* from
+  	(select * from event order by le_enddate desc) a)
+  	where le_id=#{le_id})+1]]>
+   </select>
+  
+   <!-- 다음글 -->
+   <select id="selecteventBoard_next" resultType="com.library.dto.EventDto"><!-- arraylist를써도 dto를씀. -->
+  	<![CDATA[select * from (select rownum rnum,a.* from 
+  	(select * from event order by le_enddate desc) a) 
+  	where rnum=(select rnum from (select rownum rnum,a.* from
+  	(select * from event order by le_enddate desc) a)
+  	where le_id=#{le_id})-1]]>
+   </select>
+	
+   <!-- comment 등록 -->
+  <insert id="insertCommentWrite">
+        <selectKey resultType="int" keyProperty="evcom_no" order="BEFORE" >
+	      select evcom_no.nextval from dual
+	    </selectKey>  
+        insert into event_comment values(
+		#{evcom_no},#{le_id},#{lm_user},#{evcom_pw},#{evcom_content},sysdate)
+  </insert>
+  <!-- comment 저장된 1개 읽어오기 -->
+  <select id="selectCommentWrite" resultType="com.library.dto.EvecomDto">
+        SELECT * FROM event_comment where evcom_no=#{evcom_no}
+  </select>
+  
+  <!-- comment 전체 읽기 -->
+  <select id="selectEvent_CommentList" resultType="com.library.dto.EvecomDto">
+        SELECT * FROM event_comment where le_id=#{le_id}
+  </select>
+  <!-- comment 개수 -->
+  <select id="selectEvent_CommentCount" resultType="int">
+        SELECT count(*) FROM event_comment where le_id=#{le_id}
+  </select>
+  
+  <update id="updateCommentUpdate" >
+        update event_comment set evcom_content=#{evcom_content},
+        evcom_date=sysdate where evcom_no=#{evcom_no}
+  </update>
+  
+  <delete id="deleteComment" >
+        delete event_comment where evcom_no=#{evcom_no}
+  </delete>
+	
+</mapper>	
